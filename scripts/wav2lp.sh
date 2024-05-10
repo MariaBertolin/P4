@@ -17,7 +17,7 @@ cleanup() {
    \rm -f $base.*
 }
 
-if [[ $# != 3 ]]; then
+if [[ $# != 3 ]]; then # comprobacion nº de argumentos
    echo "$0 lpc_order input.wav output.lp"
    exit 1
 fi
@@ -26,7 +26,6 @@ lpc_order=$1
 inputfile=$2
 outputfile=$3
 
-UBUNTU_SPTK=1
 if [[ $UBUNTU_SPTK == 1 ]]; then
    # In case you install SPTK using debian package (apt-get)
    X2X="sptk x2x"
@@ -49,6 +48,7 @@ sox $inputfile -t raw -e signed -b 16 - | $X2X +sf | $FRAME -l 240 -p 80 | $WIND
 # Our array files need a header with the number of cols and rows:
 ncol=$((lpc_order+1)) # lpc p =>  (gain a1 a2 ... ap) 
 nrow=`$X2X +fa < $base.lp | wc -l | perl -ne 'print $_/'$ncol', "\n";'`
+## 'f' de reales a 'a' ascii
 
 # Build fmatrix file by placing nrow and ncol in front, and the data after them
 echo $nrow $ncol | $X2X +aI > $outputfile
