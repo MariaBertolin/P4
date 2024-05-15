@@ -100,21 +100,24 @@ namespace upc
 		return log_prob_x;
 	}
 
-	/// Computes the logprob for the whole input data.
+
+	/// Computes the log probability for the whole input data.
 	float GMM::logprob(const fmatrix &data) const
 	{
-
-		if (nmix == 0 or vector_size == 0 or vector_size != data.ncol())
+		if (nmix == 0 || vector_size == 0 || vector_size != data.ncol())
 			return -1e38F;
 
 		float lprob = 0.0;
 		unsigned int n;
 
-		for (n=0; n<data.nrow(); ++n) {
-			/// \TODO Compute the logprob of a single frame of the input data; you can use gmm_logprob() above.
+		for (n = 0; n < data.nrow(); ++n) {
+			/// \TODO Compute the log probability of a single frame of the input data using gmm_logprob() above.
+			/// \DONE Computed the log probability of a single frame of the input data using gmm_logprob().
+			lprob += gmm_logprob(data[n]);
 		}
-		return lprob/data.nrow();
+		return lprob / data.nrow();
 	}
+
 
 	int GMM::centroid(const upc::fmatrix &data) {
 		if (data.nrow() == 0 or data.ncol() == 0)
@@ -206,13 +209,18 @@ namespace upc
 
 		fmatrix weights(data.nrow(), nmix);
 		for (iteration=0; iteration<max_it; ++iteration) {
-			/// \TODO
-			// Complete the loop in order to perform EM, and implement the stopping criterion.
-			//
-			// EM loop: em_expectation + em_maximization.
-			//
-			// Update old_prob, new_prob and inc_prob in order to stop the loop if logprob does not
-			// increase more than inc_threshold.
+			/// \TODO Complete the loop in order to perform EM, and implement the stopping criterion.
+			///       EM loop: em_expectation + em_maximization.
+			///       Update old_prob, new_prob, and inc_prob to stop the loop if logprob does not
+			///       increase more than inc_threshold.
+			///
+			/// \DONE Completed the EM loop, consisting of the expectation step (em_expectation) and the maximization step (em_maximization).
+			new_prob = em_expectation(data, weights); // Calculate the new log probability using the expectation step.
+			inc_prob = new_prob - old_prob; // Calculate the difference in log probability from the previous iteration.
+			old_prob = new_prob; // Update the old log probability for the next iteration.
+			if (inc_prob < inc_threshold) break; // Check if the increase in log probability is less than the threshold, if so, exit the loop.
+			em_maximization(data, weights); // Perform the maximization step to update the GMM parameters.
+
 			if (verbose & 01)
 				cout << "GMM nmix=" << nmix << "\tite=" << iteration << "\tlog(prob)=" << new_prob << "\tinc=" << inc_prob << endl;
 		}
