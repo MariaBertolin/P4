@@ -17,12 +17,12 @@ set -o pipefail
 #       - db_devel: directory of the speecon database used during development
 #       - db_test: directory of the database used in the final test
 # \DONE Assigned values to variables lists, w, name_exp, db_devel, and db_test.
-lists = lists               # Directory with the list of signal files
-w = work                    # Working directory for temporary files
-name_exp = one              # Name of the experiment
-db_devel = spk_8mu/speecon  # Directory of the speecon database used during development
-db_test = spk_8mu/sr_test   # Directory of the database used in the final test
-world = users               
+lists=lists               # Directory with the list of signal files
+w=work                    # Working directory for temporary files
+name_exp=one              # Name of the experiment
+db_devel=spk_8mu/speecon  # Directory of the speecon database used during development
+db_test=spk_8mu/sr_test   # Directory of the database used in the final test
+world=users               
 
 
 # Ficheros de resultados del reconocimiento y verificación
