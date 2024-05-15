@@ -10,19 +10,20 @@
 set -o pipefail
 
 ## @file
-# \TODO
-# Set the proper value to variables: lists, w, name_exp and db
-# - lists:    directory with the list of signal files
-# - w:        a working directory for temporary files (work, ampliacion...)
-# - name_exp: name of the experiment
-# - db_devel: directory of the speecon database used during development
-# - db_test:  directory of the database used in the final test
-lists=lists
-w=work
-name_exp=one
-db_devel=spk_8mu/speecon
-db_test=spk_8mu/sr_test
-world=users
+# \TODO Set the proper value to variables:
+#       - lists: directory with the list of signal files
+#       - w: a working directory for temporary files (work, ampliacion...)
+#       - name_exp: name of the experiment
+#       - db_devel: directory of the speecon database used during development
+#       - db_test: directory of the database used in the final test
+# \DONE Assigned values to variables lists, w, name_exp, db_devel, and db_test.
+lists = lists               # Directory with the list of signal files
+w = work                    # Working directory for temporary files
+name_exp = one              # Name of the experiment
+db_devel = spk_8mu/speecon  # Directory of the speecon database used during development
+db_test = spk_8mu/sr_test   # Directory of the database used in the final test
+world = users               
+
 
 # Ficheros de resultados del reconocimiento y verificación
 LOG_CLASS=$w/class_${FEAT:-$1}_${name_exp}.log
@@ -82,7 +83,7 @@ compute_lp() {
     shift
     for filename in $(sort $*); do
         mkdir -p `dirname $w/$FEAT/$filename.$FEAT`
-        EXEC="wav2lp 8 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
+        EXEC="wav2lp 20 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
         echo $EXEC && $EXEC || exit 1
     done
 }
@@ -130,15 +131,28 @@ for cmd in $*; do
 
    if [[ $cmd == train ]]; then
        ## @file
-       # \TODO
-       # Select (or change) good parameters for gmm_train
-       for dir in $db_devel/BLOCK*/SES* ; do
-           name=${dir/*\/}
-           echo $name ----
-           EXEC="gmm_train -v 1 -T 0.001 -N 5 -m 5 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$name.gmm $lists/class/$name.train"
-           echo $EXEC && $EXEC || exit 1
-           echo
-       done
+        # \TODO Select (or change) good parameters for gmm_train
+
+        # Loop through directories in the development database
+        for dir in $db_devel/BLOCK*/SES* ; do
+            name=${dir/*\/}  # Extract directory name
+            echo $name ----
+
+            # Define gmm_train command with updated parameters
+            EXEC="gmm_train -v 1 -T 0.0001 -N 100 -m 32 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$name.gmm $lists/class/$name.train -i 1"
+
+            # Print and execute the command
+            echo $EXEC && $EXEC || exit 1
+            echo
+        done
+
+        # \DONE Updated parameters for gmm_train:
+        #       - LogProbability threshold (T) set to 0.0001
+        #       - Number of final EM iterations (N) set to 100
+        #       - Number of mixtures (m) set to 32
+        #       - Initialization method (i) set to 1 (VQ)
+
+
    elif [[ $cmd == test ]]; then
         EXEC="gmm_classify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm $lists/gmm.list $lists/class/all.test"
         echo $EXEC && $EXEC | tee $LOG_CLASS || exit 1
@@ -155,26 +169,37 @@ for cmd in $*; do
                  else {$err++}
                  END {printf "nerr=%d\tntot=%d\terror_rate=%.2f%%\n", ($err, $ok+$err, 100*$err/($ok+$err))}' $LOG_CLASS | tee -a $LOG_CLASS
 
-   elif [[ $cmd == trainworld ]]; then
-       ## @file
-       # \TODO
-       # Implement 'trainworld' in order to get a Universal Background Model for speaker verification
-       #
-       # - The name of the world model will be used by gmm_verify in the 'verify' command below.
-        EXEC="gmm_train -v 1 -T 0.001 -N 5 -m 5 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train"
-        echo $EXEC && $EXEC || exit 1
 
-   elif [[ $cmd == verify ]]; then
-       ## @file
-       # \TODO 
-       # Implement 'verify' in order to perform speaker verification
-       #
-       # - The standard output of gmm_verify must be redirected to file $LOG_VERIF.
-       #   For instance:
-       #   * <code> gmm_verify ... > $LOG_VERIF </code>
-       #   * <code> gmm_verify ... | tee $LOG_VERIF </code>
-       EXEC="gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm $lists/gmm.list $lists/verif/all.test $lists/verif/all.test.candidates"
-       echo $EXEC; $EXEC | tee $LOG_VERIF || exit 1
+
+        elif [[ $cmd == trainworld ]]; then
+            ## @file
+            # \TODO Implement 'trainworld' to obtain a Universal Background Model for speaker verification
+            #
+            # - The name of the world model will be used by gmm_verify in the 'verify' command below.
+            EXEC="gmm_train -v 1 -T 0.0001 -N 100 -m 32 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train -i 1"
+            echo $EXEC && $EXEC || exit 1
+
+        # \DONE Implemented 'trainworld' with the following parameters:
+        #       - LogProbability threshold (T) set to 0.0001
+        #       - Number of final EM iterations (N) set to 100
+        #       - Number of mixtures (m) set to 32
+        #       - Initialization method (i) set to 1 (VQ)
+
+
+
+        elif [[ $cmd == verify ]]; then
+            ## @file
+            # \TODO Implement 'verify' to perform speaker verification
+            #
+            # - The standard output of gmm_verify must be redirected to file $LOG_VERIF.
+            #   For instance:
+            #   * <code> gmm_verify ... > $LOG_VERIF </code>
+            #   * <code> gmm_verify ... | tee $LOG_VERIF </code>
+            EXEC="gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm -w $world $lists/gmm.list $lists/verif/all.test $lists/verif/all.test.candidates"
+            echo $EXEC && $EXEC | tee $TEMP_VERIF || exit 1
+
+        # \DONE Implemented 'verify' with the specified gmm_verify command and redirected the standard output to file $TEMP_VERIF.
+
 
    elif [[ $cmd == verifyerr ]]; then
        if [[ ! -s $LOG_VERIF ]] ; then
@@ -186,42 +211,54 @@ for cmd in $*; do
        spk_verif_score $LOG_VERIF | tee -a $LOG_VERIF
 
    elif [[ $cmd == finalclass ]]; then
-       ## @file
-       # \TODO
-       # Perform the final test on the speaker classification of the files in spk_ima/sr_test/spk_cls.
-       # The list of users is the same as for the classification task. The list of files to be
-       # recognized is lists/final/class.test
-       #
-       # El fichero con el resultado del reconocimiento debe llamarse $FINAL_CLASS, que deberá estar en el
-       # directorio de la práctica (PAV/P4).
-       compute_$FEAT $db_test $lists/final/class.test
-       EXEC="gmm_classify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm $lists/gmm.list $lists/final/class.test"
-       echo $EXEC && $EXEC | tee $FINAL_CLASS || exit 1
+    ## @file
+    # \TODO Perform the final test on the speaker classification of the files in spk_ima/sr_test/spk_cls.
+    #       The list of users is the same as for the classification task. The list of files to be
+    #       recognized is lists/final/class.test
+    #
+    # El fichero con el resultado del reconocimiento debe llamarse $FINAL_CLASS, que deberá estar en el
+    # directorio de la práctica (PAV/P4).
+    compute_$FEAT $db_test $lists/final/class.test  # Compute features for final classification
+    EXEC="gmm_classify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm $lists/gmm.list $lists/final/class.test"
+    echo $EXEC && $EXEC | tee $FINAL_CLASS || exit 1
+
+    # \DONE Implemented 'finalclass' command:
+    #       - Computed features for final classification using the specified feature extraction method.
+    #       - Used gmm_classify to perform classification on the final test files.
+    #       - Redirected the output to the file $FINAL_CLASS.
+
    
-   elif [[ $cmd == finalverif ]]; then
-       ## @file
-       # \TODO
-       # Perform the final test on the speaker verification of the files in spk_ima/sr_test/spk_ver.
-       # The list of legitimate users is lists/final/verif.users, the list of files to be verified
-       # is lists/final/verif.test, and the list of users claimed by the test files is
-       # lists/final/verif.test.candidates
-       #
-       # El fichero con el resultado de la verificación debe llamarse $FINAL_VERIF, que estará en el
-       # directorio de la práctica (PAV/P4).
-       #
-       # ATENCIÓN:
-       # $FINAL_VERIF tiene un formato diferente al proporcionado por 'gmm_verify'. En la salida del
-       # programa, que puede guardar en $TEMP_VERIF, la tercera columna es la puntuación dada al
-       # candidato para la señal a verificar. En $FINAL_VERIF se pide que la tercera columna sea 1,
-       # si se considera al candidato legítimo, o 0, si se considera impostor. Las instrucciones para
-       # realizar este cambio de formato están en el enunciado de la práctica.
-       compute_$FEAT $db_test $lists/final/verif.test
-       EXEC="gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm -w $world $lists/gmm.list $lists/final/verif.test $lists/final/verif.test.candidates"
-       echo $EXEC && $EXEC | tee $TEMP_VERIF || exit 1
-       # Seleccionar el valor óptimo del umbral con el resultado final del verifyer
-        perl -ane 'print "$F[0]\t$F[1]\t";
-            if ($F[2] > 3) {print "1\n"}
-            else {print "0\n"}' $TEMP_VERIF | tee $FINAL_VERIF
+
+    elif [[ $cmd == finalverif ]]; then
+        ## @file
+        # \TODO Perform the final test on the speaker verification of the files in spk_ima/sr_test/spk_ver.
+        #       The list of legitimate users is lists/final/verif.users, the list of files to be verified
+        #       is lists/final/verif.test, and the list of users claimed by the test files is
+        #       lists/final/verif.test.candidates
+        #
+        # El fichero con el resultado de la verificación debe llamarse $FINAL_VERIF, que estará en el
+        # directorio de la práctica (PAV/P4).
+        #
+        # ATENCIÓN:
+        # $FINAL_VERIF tiene un formato diferente al proporcionado por 'gmm_verify'. En la salida del
+        # programa, que puede guardarse en $TEMP_VERIF, la tercera columna es la puntuación dada al
+        # candidato para la señal a verificar. En $FINAL_VERIF se pide que la tercera columna sea 1,
+        # si se considera al candidato legítimo, o 0, si se considera impostor. Las instrucciones para
+        # realizar este cambio de formato están en el enunciado de la práctica.
+
+        compute_$FEAT $db_test $lists/final/verif.test  # Compute features for final verification
+        EXEC="gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm -w $world $lists/gmm.list $lists/final/verif.test $lists/final/verif.test.candidates"
+        echo $EXEC && $EXEC | tee $TEMP_VERIF || exit 1
+
+        # Convert verification results format
+        perl -ane 'print "$F[0]\t$F[1]\t"; if ($F[2] > 0.154286866282095) {print "1\n"} else {print "0\n"}' $TEMP_VERIF | tee $FINAL_VERIF
+
+        # \DONE Performed the 'finalverif' command:
+        #       - Computed features for final verification using the specified feature extraction method.
+        #       - Used gmm_verify to perform verification on the final test files.
+        #       - Redirected the output to the file $TEMP_VERIF.
+        #       - Converted the verification results format and saved it to $FINAL_VERIF as per instructions.
+
    
    # If the command is not recognize, check if it is the name
    # of a feature and a compute_$FEAT function exists.
