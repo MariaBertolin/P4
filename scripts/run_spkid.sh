@@ -178,6 +178,7 @@ for cmd in $*; do
    elif [[ $cmd == finalclass ]]; then
        ## @file
        # \TODO 
+       # \DONE
        # Perform the final test on the speaker classification of the files in spk_ima/sr_test/spk_cls.
        # The list of users is the same as for the classification task. The list of files to be
        # recognized is lists/final/class.test
@@ -192,6 +193,7 @@ for cmd in $*; do
    elif [[ $cmd == finalverif ]]; then
        ## @file
        # \TODO
+       # \DONE
        # Perform the final test on the speaker verification of the files in spk_ima/sr_test/spk_ver.
        # The list of legitimate users is lists/final/verif.users, the list of files to be verified
        # is lists/final/verif.test, and the list of users claimed by the test files is
@@ -207,10 +209,11 @@ for cmd in $*; do
        # si se considera al candidato legítimo, o 0, si se considera impostor. Las instrucciones para
        # realizar este cambio de formato están en el enunciado de la práctica.
 
-       # compute_$FEAT $db_test $lists/final/verif.test #parametrizo
+       compute_$FEAT $db_test $lists/final/verif.test # parametrizo
        EXEC="gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -w $world -E gmm $lists/gmm.list $lists/final/verif.test $lists/final/verif.test.candidates"
        echo $EXEC; $EXEC | tee $TEMP_VERIF || exit 1
-
+       
+       # SELECCIONAR EL VALOR OPTIMO DEL UMBRAL CON EL RESULTADO FINAL DE VERIFYERR
        perl -ane 'print "$F[0]\t$F[1]\t";
         if ($F[2] > 1.730744337376) {print "1\n"}
         else {print "0\n"}' $TEMP_VERIF | tee $FINAL_VERIF 
