@@ -5,9 +5,6 @@
 set -o pipefail
 
 ## \file
-## \TODO This file implements a very trivial feature extraction; use it as a template for other front ends.
-## 
-## Please, read SPTK documentation and some papers in order to implement more advanced front ends.
 
 # Base name for temporary files
 base=/tmp/$(basename $0).$$ 
@@ -24,7 +21,7 @@ if [[ $# != 4 ]]; then # comprobacion nº de argumentos
 fi
 
 # Script arguments
-lp_order=$1
+lpc_order=$1
 lpcc_order=$2
 inputfile=$3
 outputfile=$4
