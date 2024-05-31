@@ -7,6 +7,7 @@ set -o pipefail
 ## \TODO This file implements a very trivial feature extraction; use it as a template for other front ends.
 ## 
 ## Please, read SPTK documentation and some papers in order to implement more advanced front ends.
+## \DONE Implemented 
 
 # Base name for temporary files
 base=/tmp/$(basename $0).$$ 
