@@ -74,9 +74,10 @@ fi
 # ----------------------------
 
 ## @file
-# \TODO
-# Create your own features with the name compute_$FEAT(), where $FEAT is the name of the feature.
-# - Select (or change) different features, options, etc. Make you best choice and try several options.
+# \TODO Create your own features with the name compute_$FEAT(), where $FEAT is the name of the feature.
+#   - Select (or change) different features, options, etc. Make you best choice and try several options.
+# \DONE
+# Se ha creado compute_lpcc y compute_mfcc
 
 compute_lp() {
     db=$1
@@ -132,6 +133,11 @@ for cmd in $*; do
    if [[ $cmd == train ]]; then
        ## @file
         # \TODO Select (or change) good parameters for gmm_train
+        # \DONE Updated parameters for gmm_train:
+        #       - LogProbability threshold (T) set to 0.0001
+        #       - Number of final EM iterations (N) set to 100
+        #       - Number of mixtures (m) set to 32
+        #       - Initialization method (i) set to 1 (VQ)
 
         # Loop through directories in the development database
         for dir in $db_devel/BLOCK*/SES* ; do
@@ -146,11 +152,7 @@ for cmd in $*; do
             echo
         done
 
-        # \DONE Updated parameters for gmm_train:
-        #       - LogProbability threshold (T) set to 0.0001
-        #       - Number of final EM iterations (N) set to 100
-        #       - Number of mixtures (m) set to 32
-        #       - Initialization method (i) set to 1 (VQ)
+        
 
 
    elif [[ $cmd == test ]]; then
@@ -177,15 +179,16 @@ for cmd in $*; do
         #
         # - The name of the world model will be used by gmm_verify in the 'verify' command below.
         # EXEC="gmm_train -v 1 -T 0.00001 -N 5 -m 5 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train" <- en classe
-        EXEC="gmm_train -v 1 -T 0.0001 -N 100 -m 32 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train -i 1" # aplicamos VQ
-        echo $EXEC && $EXEC || exit 1
-
         # \DONE Implemented 'trainworld' with the following parameters:
         #       - LogProbability threshold (T) set to 0.0001
         #       - Number of final EM iterations (N) set to 100
         #       - Number of mixtures (m) set to 32
         #       - Initialization method (i) set to 1 (VQ)
 
+        EXEC="gmm_train -v 1 -T 0.0001 -N 100 -m 32 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train -i 1" # aplicamos VQ
+        echo $EXEC && $EXEC || exit 1
+
+        
 
 
     elif [[ $cmd == verify ]]; then
@@ -196,10 +199,10 @@ for cmd in $*; do
         #   For instance:
         #   * <code> gmm_verify ... > $LOG_VERIF </code>
         #   * <code> gmm_verify ... | tee $LOG_VERIF </code>
+        # \DONE Implemented 'verify' with the specified gmm_verify command and redirected the standard output to file $TEMP_VERIF.
+
         EXEC="gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm -w $world $lists/gmm.list $lists/verif/all.test $lists/verif/all.test.candidates"
         echo $EXEC && $EXEC | tee $TEMP_VERIF || exit 1
-
-        # \DONE Implemented 'verify' with the specified gmm_verify command and redirected the standard output to file $TEMP_VERIF.
 
 
    elif [[ $cmd == verifyerr ]]; then
@@ -219,16 +222,15 @@ for cmd in $*; do
     #
     # El fichero con el resultado del reconocimiento debe llamarse $FINAL_CLASS, que deberá estar en el
     # directorio de la práctica (PAV/P4).
-    compute_$FEAT $db_test $lists/final/class.test  # Compute features for final classification
-    EXEC="gmm_classify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm $lists/gmm.list $lists/final/class.test"
-    echo $EXEC && $EXEC | tee $FINAL_CLASS || exit 1
-
     # \DONE Implemented 'finalclass' command:
     #       - Computed features for final classification using the specified feature extraction method.
     #       - Used gmm_classify to perform classification on the final test files.
     #       - Redirected the output to the file $FINAL_CLASS.
 
-   
+    compute_$FEAT $db_test $lists/final/class.test  # Compute features for final classification
+    EXEC="gmm_classify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm $lists/gmm.list $lists/final/class.test"
+    echo $EXEC && $EXEC | tee $FINAL_CLASS || exit 1
+  
 
     elif [[ $cmd == finalverif ]]; then
         ## @file
@@ -246,6 +248,11 @@ for cmd in $*; do
         # candidato para la señal a verificar. En $FINAL_VERIF se pide que la tercera columna sea 1,
         # si se considera al candidato legítimo, o 0, si se considera impostor. Las instrucciones para
         # realizar este cambio de formato están en el enunciado de la práctica.
+        # \DONE Performed the 'finalverif' command:
+        #       - Computed features for final verification using the specified feature extraction method.
+        #       - Used gmm_verify to perform verification on the final test files.
+        #       - Redirected the output to the file $TEMP_VERIF.
+        #       - Converted the verification results format and saved it to $FINAL_VERIF as per instructions.
 
         compute_$FEAT $db_test $lists/final/verif.test  # Compute features for final verification
         EXEC="gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm -w $world $lists/gmm.list $lists/final/verif.test $lists/final/verif.test.candidates"
@@ -253,12 +260,6 @@ for cmd in $*; do
 
         # Convert verification results format
         perl -ane 'print "$F[0]\t$F[1]\t"; if ($F[2] > 0.154286866282095) {print "1\n"} else {print "0\n"}' $TEMP_VERIF | tee $FINAL_VERIF
-
-        # \DONE Performed the 'finalverif' command:
-        #       - Computed features for final verification using the specified feature extraction method.
-        #       - Used gmm_verify to perform verification on the final test files.
-        #       - Redirected the output to the file $TEMP_VERIF.
-        #       - Converted the verification results format and saved it to $FINAL_VERIF as per instructions.
 
    
    # If the command is not recognize, check if it is the name

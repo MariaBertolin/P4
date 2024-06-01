@@ -8,6 +8,9 @@ from docopt import docopt
 import numpy as np
 from scipy.stats import multivariate_normal as gauss
 
+import matplotlib
+matplotlib.use('TKAgg')
+
 def read_gmm(fileGMM):
     '''
        Reads the weights, means and convariances from a GMM
