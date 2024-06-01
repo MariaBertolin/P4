@@ -244,7 +244,29 @@ Complete el código necesario para realizar verificación del locutor y optimice
   de verificación de SPEECON. La tabla debe incluir el umbral óptimo, el número de falsas alarmas y de
   pérdidas, y el score obtenido usando la parametrización que mejor resultado le hubiera dado en la tarea
   de reconocimiento.
+  
+ **LP:**
+    nerr=394        ntot=785        error_rate=50.19%
+    ==============================================
+    THR: 2.8182310355438
+    Missed:     123/250=0.4920
+    FalseAlarm: 44/1000=0.0440
+    ----------------------------------------------
+    ==> CostDetection: 88.8
+    ==============================================
  
+ **LPCC:**
+    nerr=3  ntot=58 error_rate=5.17%
+    ==============================================
+    THR: 2.8511209965746
+    Missed:     33/250=0.1320
+    FalseAlarm: 10/1000=0.0100
+    ----------------------------------------------
+    ==> CostDetection: 22.2
+    ==============================================
+  
+  **MFCC:**
+    nerr=15 ntot=785        error_rate=1.91%
 ---
 
 ### Test final
