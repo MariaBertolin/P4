@@ -263,8 +263,8 @@ for cmd in $*; do
 
         # Convert verification results format
         perl -ane 'print "$F[0]\t$F[1]\t"; 
-                    if ($F[2] > 2.8511209965746) {print "1\n"} 
-                    else {print "0\n"}' $TEMP_VERIF | tee $FINAL_VERIF
+        if ($F[2] > 0.275625308900604) {print "1\n"} 
+        else {print "0\n"}' $TEMP_VERIF | tee $FINAL_VERIF
 
 
 

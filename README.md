@@ -217,13 +217,25 @@ Complete el código necesario para entrenar modelos GMM.
 - Inserte una gráfica que muestre la función de densidad de probabilidad modelada por el GMM de un locutor
   para sus dos primeros coeficientes de MFCC.
 
-  <code>plot_gmm_feat -x 2 -y 3 -p 99 90 50 -g green "work/gmm/mfcc/SES007.gmm" "work/mfcc/BLOCK00/SES007/*"</code>
+    ![Gráfica de la función de densidad de probabilidad modelada por el GMM para los dos primeros coeficientes de MFCC de un locutor](img/ses007_mfcc.png)
 
   ---
 
 - Inserte una gráfica que permita comparar los modelos y poblaciones de dos locutores distintos (la gŕafica
   de la página 20 del enunciado puede servirle de referencia del resultado deseado). Analice la capacidad
   del modelado GMM para diferenciar las señales de uno y otro.
+
+  ![Comparación de modelos GMM para locutores 7 y 130 usando LP](img/subplots_lp.png)
+
+  ![Comparación de modelos GMM para locutores 7 y 130 usando LPCC](img/subplots_lpcc.png)
+
+  ![Comparación de modelos GMM para locutores 7 y 130 usando MFCC](img/subplots_mfcc.png)
+
+### Análisis
+
+La comparación de los modelos GMM de los locutores 7 y 130 muestra la capacidad del modelado GMM para diferenciar las señales de distintos locutores. En las gráficas se puede observar cómo las distribuciones de densidad de probabilidad para cada locutor se superponen en algunos casos, pero también hay áreas donde los modelos son visiblemente distintos. Esto indica que, en general, el modelado GMM puede ser efectivo para capturar las características distintivas de las señales de cada locutor.
+
+Es notable que el modelo GMM de un locutor puede ser ineficaz para clasificar las señales del otro locutor, lo que subraya la importancia de un entrenamiento adecuado así como los parámetros definidos y los métodos de análisis que se utilicen, para así poder mejorar la discriminación entre locutores.
 
 ---
 
@@ -237,7 +249,7 @@ Complete el código necesario para realizar reconociminto del locutor y optimice
   | Método | Tasa de Error |
   |--------|---------------|
   | LP     | 11.23%        |
-  | LPCC   | 5.17%         |
+  | LPCC   | 0.76%         |
   | MFCC   | 1.66%         |
 
 Los resultados muestran que el método MFCC tiene la tasa de error más baja, seguido por LPCC y luego LP.
@@ -247,7 +259,7 @@ Los resultados muestran que el método MFCC tiene la tasa de error más baja, se
     nerr=41        ntot=365        error_rate=11.23%
  
  LPCC:
-    nerr=3  ntot=58 error_rate=5.17%
+    nerr=6  ntot=785 error_rate=0.76%
   
  MFCC:
     nerr=13 ntot=785        error_rate=1.66%
@@ -266,29 +278,29 @@ Complete el código necesario para realizar verificación del locutor y optimice
 
 | Método | Umbral óptimo | Falsas Alarmas | Pérdidas | Puntaje (Reconocimiento) |
 |--------|---------------|----------------|----------|---------------------------|
-| LP     | 2.8182        | 44/1000        | 123/250  | 88.8                      |
-| LPCC   | 2.8511        | 10/1000        | 33/250   | 22.2                      |
+| LP     | 0.4036        | 12/1000        | 85/250   | 49.3                      |
+| LPCC   | 0.2756        | 5/1000         | 13/250   | 9.7                       |
 | MFCC   | 0.5171        | 13/1000        | 38/250   | 26.9                      |
 
 ```bash
  LP:
     nerr=41        ntot=365        error_rate=11.23%
     ==============================================
-    THR: 2.8182310355438
-    Missed:     123/250=0.4920
-    FalseAlarm: 44/1000=0.0440
+    THR: 0.403682549125207
+    Missed:     85/250=0.3400
+    FalseAlarm: 17/1000=0.0170
     ----------------------------------------------
-    ==> CostDetection: 88.8
+    ==> CostDetection: 49.3
     ==============================================
  
  LPCC:
-    nerr=3  ntot=58 error_rate=5.17%
+    nerr=6  ntot=785 error_rate=0.76%
     ==============================================
-    THR: 2.8511209965746
-    Missed:     33/250=0.1320
-    FalseAlarm: 10/1000=0.0100
+    THR: 0.275625308900604
+    Missed:     13/250=0.0520
+    FalseAlarm: 5/1000=0.0050
     ----------------------------------------------
-    ==> CostDetection: 22.2
+    ==> CostDetection: 9.7
     ==============================================
   
  MFCC:
@@ -308,6 +320,8 @@ Complete el código necesario para realizar verificación del locutor y optimice
 
 - Adjunte, en el repositorio de la práctica, los ficheros `class_test.log` y `verif_test.log` 
   correspondientes a la evaluación *ciega* final.
+
+Hecho!
 
 ---
 
