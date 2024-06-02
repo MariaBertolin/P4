@@ -322,6 +322,9 @@ Complete el código necesario para realizar verificación del locutor y optimice
   correspondientes a la evaluación *ciega* final.
 
 Hecho!
+  ``` bash
+  FEAT=lpcc /Users/pol/PAV/bin/run_spkid finalclass finalverif
+  ```
 
 ---
 
