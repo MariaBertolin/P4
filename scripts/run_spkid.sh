@@ -145,7 +145,7 @@ for cmd in $*; do
             echo $name ----
 
             # Define gmm_train command with updated parameters
-            EXEC="gmm_train -v 1 -T 0.0001 -N 100 -m 32 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$name.gmm $lists/class/$name.train -i 1"
+            EXEC="gmm_train -v 1 -T 0.0001 -N 100 -m 32 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$name.gmm -i 1 $lists/class/$name.train"
 
             # Print and execute the command
             echo $EXEC && $EXEC || exit 1
@@ -185,7 +185,7 @@ for cmd in $*; do
         #       - Initialization method (i) set to 1 (VQ)
 
         # EXEC="gmm_train -v 1 -T 0.00001 -N 5 -m 5 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train" <- en classe
-        EXEC="gmm_train -v 1 -T 0.0001 -N 100 -m 32 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train -i 1" # aplicamos VQ
+        EXEC="gmm_train -v 1 -T 0.0001 -N 100 -m 32 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm  -i 1 $lists/verif/$world.train" # aplicamos VQ
         echo $EXEC && $EXEC || exit 1
 
 
@@ -262,7 +262,7 @@ for cmd in $*; do
         echo $EXEC && $EXEC | tee $TEMP_VERIF || exit 1
 
         # Convert verification results format
-        perl -ane 'print "$F[0]\t$F[1]\t"; if ($F[2] > 0.154286866282095) {print "1\n"} else {print "0\n"}' $TEMP_VERIF | tee $FINAL_VERIF
+        perl -ane 'print "$F[0]\t$F[1]\t"; if ($F[2] > 2.8511209965746) {print "1\n"} else {print "0\n"}' $TEMP_VERIF | tee $FINAL_VERIF
 
 
 
@@ -270,9 +270,8 @@ for cmd in $*; do
    # If the command is not recognize, check if it is the name
    # of a feature and a compute_$FEAT function exists.
    elif [[ "$(type -t compute_$cmd)" = function ]]; then
-       FEAT=$cmd
-       compute_$FEAT $db_devel $lists/class/all.train $lists/class/all.test
-
+        FEAT=$cmd
+        compute_$FEAT $db_devel $lists/class/all.train $lists/class/all.test
    else
        echo "undefined command $cmd" && exit 1
    fi

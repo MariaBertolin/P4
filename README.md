@@ -234,6 +234,25 @@ Complete el código necesario para realizar reconociminto del locutor y optimice
 - Inserte una tabla con la tasa de error obtenida en el reconocimiento de los locutores de la base de datos
   SPEECON usando su mejor sistema de reconocimiento para los parámetros LP, LPCC y MFCC.
 
+  | Método | Tasa de Error |
+  |--------|---------------|
+  | LP     | 11.23%        |
+  | LPCC   | 5.17%         |
+  | MFCC   | 1.66%         |
+
+Los resultados muestran que el método MFCC tiene la tasa de error más baja, seguido por LPCC y luego LP.
+
+```bash
+ LP:
+    nerr=41        ntot=365        error_rate=11.23%
+ 
+ LPCC:
+    nerr=3  ntot=58 error_rate=5.17%
+  
+ MFCC:
+    nerr=13 ntot=785        error_rate=1.66%
+```
+
 ---
 
 ### Verificación del locutor.
@@ -244,9 +263,16 @@ Complete el código necesario para realizar verificación del locutor y optimice
   de verificación de SPEECON. La tabla debe incluir el umbral óptimo, el número de falsas alarmas y de
   pérdidas, y el score obtenido usando la parametrización que mejor resultado le hubiera dado en la tarea
   de reconocimiento.
-  
- **LP:**
-    nerr=394        ntot=785        error_rate=50.19%
+
+| Método | Umbral óptimo | Falsas Alarmas | Pérdidas | Puntaje (Reconocimiento) |
+|--------|---------------|----------------|----------|---------------------------|
+| LP     | 2.8182        | 44/1000        | 123/250  | 88.8                      |
+| LPCC   | 2.8511        | 10/1000        | 33/250   | 22.2                      |
+| MFCC   | 0.5171        | 13/1000        | 38/250   | 26.9                      |
+
+```bash
+ LP:
+    nerr=41        ntot=365        error_rate=11.23%
     ==============================================
     THR: 2.8182310355438
     Missed:     123/250=0.4920
@@ -255,7 +281,7 @@ Complete el código necesario para realizar verificación del locutor y optimice
     ==> CostDetection: 88.8
     ==============================================
  
- **LPCC:**
+ LPCC:
     nerr=3  ntot=58 error_rate=5.17%
     ==============================================
     THR: 2.8511209965746
@@ -265,8 +291,17 @@ Complete el código necesario para realizar verificación del locutor y optimice
     ==> CostDetection: 22.2
     ==============================================
   
-  **MFCC:**
-    nerr=15 ntot=785        error_rate=1.91%
+ MFCC:
+    nerr=13 ntot=785        error_rate=1.66%
+    ==============================================
+    THR: 0.517102170395609
+    Missed:     38/250=0.1520
+    FalseAlarm: 13/1000=0.0130
+    ----------------------------------------------
+    ==> CostDetection: 26.9
+    ==============================================
+  ```
+
 ---
 
 ### Test final
